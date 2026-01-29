@@ -28,3 +28,13 @@ Allocator::~Allocator(){
         }
     }
 }
+
+void* Allocator::allocate(size_t size, size_t allignment){
+    size_t padding = (allignment - (reinterpret_cast<u_int64_t>(m_cursor) % allignment)) % allignment;
+
+    m_cursor += padding;
+    void* ptr = m_cursor;
+    m_cursor += size;
+
+    return ptr;
+}

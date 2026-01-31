@@ -18,21 +18,23 @@ int main(int argc, char* argv[]){
 
     {
         Allocator memory(size);
-        std::cout << "Memory initialized. Press enter to end" << "\n";
-        std::cin.get();
+        std::cout << "Memory initialized at " << memory.get_m_start() << "\n";
 
-        int* i = static_cast<int*>(malloc(sizeof(int)));
-        *i = 10;
-        memcpy(memory.get_m_start(), i, 4);
+        size_t s;
+        void* ptr;
+        while(1){
+            std::cout << "Enter allocation size" << "\n";
+            std::cin >> s;
+            if(s == 0) break;
 
-        int *j = static_cast<int *>(malloc(sizeof(int)));
-        memcpy(j, memory.get_m_start(), 4);
+            ptr = memory.allocate(s);
+            if(!ptr) break;
 
-        std::cout << *j << "\n";
+            std::cout << "Allocated at " << ptr << "\n";
+        }
     }
 
-    std::cout << "Memory object deleted. Press enter to end" << "\n";
-    std::cin.get();
+    std::cout << "Memory block deleted" << "\n";
 
     return 0;
 }

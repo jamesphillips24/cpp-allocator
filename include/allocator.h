@@ -1,10 +1,11 @@
 #pragma once
 #include <cstddef>
+#include <cstdint>
 
 struct Header
 {
-    u_int32_t size;
-    u_int32_t padding;
+    uint32_t size;
+    uint32_t padding;
 };
 
 

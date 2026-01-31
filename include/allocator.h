@@ -1,6 +1,13 @@
 #pragma once
 #include <cstddef>
 
+struct Header
+{
+    u_int32_t size;
+    u_int32_t padding;
+};
+
+
 class Allocator{
     public:
         explicit Allocator(size_t size);

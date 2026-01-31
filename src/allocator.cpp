@@ -3,7 +3,7 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-long PAGE_SIZE = sysconf(_SC_PAGE_SIZE);
+const long PAGE_SIZE = sysconf(_SC_PAGE_SIZE);
 
 Allocator::Allocator(size_t size)
     {
@@ -29,10 +29,21 @@ Allocator::~Allocator(){
     }
 }
 
-void* Allocator::allocate(size_t size, size_t allignment){
-    size_t padding = (allignment - (reinterpret_cast<u_int64_t>(m_cursor) % allignment)) % allignment;
+// Ptr aligned in memory, header sizeof(Header) bytes before alignment
+void* Allocator::allocate(size_t size, size_t alignment){
+    size_t current_cursor = reinterpret_cast<uintptr_t>(m_cursor);
+    size_t padding = (alignment - ((current_cursor + sizeof(Header)) % alignment)) % alignment;
 
-    m_cursor += padding;
+    size_t adjustment = padding + sizeof(Header);
+    size_t total_required = adjustment + size;
+    if(m_cursor + total_required > m_end) return nullptr;
+
+    m_cursor += adjustment;
+
+    Header* h = (Header*)(m_cursor - sizeof(Header));
+    h->size = size;
+    h->padding = padding;
+
     void* ptr = m_cursor;
     m_cursor += size;
 

@@ -9,6 +9,7 @@ const u_int32_t FOOTER_SIZE = sizeof(Footer);
 
 Allocator::Allocator(size_t size)
     {
+        // Enforce page alignment
         page_count = size / PAGE_SIZE;
         if(size%PAGE_SIZE) page_count++;
         this->size = page_count * PAGE_SIZE;

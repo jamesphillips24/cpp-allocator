@@ -8,6 +8,11 @@ struct Header
     uint32_t padding;
 };
 
+struct Footer
+{
+    size_t size;
+};
+
 
 class Allocator{
     public:

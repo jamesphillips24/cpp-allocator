@@ -29,8 +29,6 @@ int main(int argc, char* argv[]){
 
             ptr = memory.allocate(s);
             if(!ptr) break;
-
-            std::cout << "Allocated at " << ptr << "\n";
         }
     }
 

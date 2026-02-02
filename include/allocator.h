@@ -28,6 +28,7 @@ class Allocator{
         Allocator(const Allocator&) = delete;               // No copy constructor
         Allocator &operator=(const Allocator&) = delete;    // No copy assignment
 
+        [[nodiscard]] void *write_block(std::byte*& cursor, const size_t size, const size_t total_block, const size_t padding);
         [[nodiscard]] void* allocate(size_t size, size_t alignment = alignof(std::max_align_t));
 
         size_t get_total_capacity() const { return size; };

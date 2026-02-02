@@ -22,6 +22,7 @@ Allocator::Allocator(size_t size)
         m_start = static_cast<std::byte*>(ptr);
         m_cursor = m_start;
         m_end = m_start + this->size;
+        f_head = nullptr;
     }
 
 Allocator::~Allocator(){
@@ -33,8 +34,41 @@ Allocator::~Allocator(){
 }
 
 // Padding size is assumed to fit within 1 byte (safe for alignments less than 256)
+// TODO: Separate functionality in to functions and then fill in pseudocode
 void* Allocator::allocate(size_t size, size_t alignment){
-    // TODO: Add size = max(size, free struct) to avoid corruption
+    size = std::max(size, sizeof(FreeBlock)); // Otherwise the free block overwrites headers
+
+    /* Psuedocode for free list traversal
+    if(f_head != nullptr){
+        FreeBlock* f_tmp = f_head;
+        unsigned char *f_tmp_char;
+
+        while(f_tmp != nullptr){
+            f_tmp_char = reinterpret_cast<unsigned char*>(f_tmp);
+            Header *h_tmp = reinterpret_cast<Header *>(f_tmp_char - f_tmp_char[-1] - HEADER_SIZE);
+
+            size_t padding_tmp = get_padding(h_tmp, alignment);
+            if(h_tmp->size >= padding_tmp + HEADER_SIZE + size + FOOTER_SIZE){
+                void* ptr = reinterpret_cast<unsigned char*>(h_tmp) + HEADER_SIZE + padding_tmp;
+                // Allocate block here (including writing header, padding byte, and footer)
+                // Change header and footer to 'allocated' status
+                if(f_tmp->prev != nullptr){
+                    f_tmp->prev->next = f_tmp->next;
+                }
+                else{
+                    f_head = f_tmp->next;
+                }
+                if(f_tmp->next != nullptr){
+                        f_tmp->next->prev = f_tmp->prev;
+                }
+
+                return ptr;
+            }
+
+            f_tmp = f_tmp->next;
+        }
+    }
+    */
 
     size_t current_cursor = reinterpret_cast<uintptr_t>(m_cursor);
 
@@ -59,6 +93,12 @@ void* Allocator::allocate(size_t size, size_t alignment){
 
     Footer *f = (Footer *)(m_cursor - FOOTER_SIZE);
     f->size = total_block | 1; // Set last bit to 1 to indicate allocated
+
+    if(!f_head){
+        f_head = (FreeBlock*)m_cursor;
+        f_head->prev = nullptr;
+        f_head->next = nullptr;
+    }
 
     return ptr;
 }

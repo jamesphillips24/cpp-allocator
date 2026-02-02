@@ -13,6 +13,12 @@ struct Footer
     size_t size;
 };
 
+struct FreeBlock
+{
+    FreeBlock* prev;
+    FreeBlock* next;
+};
+
 
 class Allocator{
     public:
@@ -35,4 +41,6 @@ class Allocator{
         std::byte* m_end;
         size_t size;
         size_t page_count;
+
+        FreeBlock* f_head;
 };

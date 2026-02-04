@@ -30,6 +30,7 @@ class Allocator{
 
         [[nodiscard]] void *write_block(std::byte*& cursor, const size_t size, const size_t total_block, const size_t padding);
         [[nodiscard]] void* allocate(size_t size, size_t alignment = alignof(std::max_align_t));
+        void free(void* ptr);
 
         size_t get_total_capacity() const { return size; };
         size_t get_used_capacity() const { return static_cast<size_t>(m_cursor - m_start); };

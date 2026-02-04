@@ -18,17 +18,23 @@ int main(int argc, char* argv[]){
 
     {
         Allocator memory(size);
+        void** ptrs = new void*[10];
+        int i = 0;
         std::cout << "Memory initialized at " << memory.get_m_start() << "\n";
 
         size_t s;
-        void* ptr;
         while(1){
             std::cout << "Enter allocation size" << "\n";
             std::cin >> s;
             if(s == 0) break;
 
-            ptr = memory.allocate(s);
-            if(!ptr) break;
+            ptrs[i] = memory.allocate(s);
+            std::cout<<"M_cursor:" << memory.get_used_capacity() + static_cast<std::byte*>(memory.get_m_start())<<"\n";
+            i++;
+            std::cout<<"Here"<<"\n";
+            if(!(ptrs[i-1])) break;
+            memory.free(ptrs[i-1]);
+            i--;
         }
     }
 

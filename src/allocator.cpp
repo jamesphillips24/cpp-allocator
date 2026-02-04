@@ -7,6 +7,23 @@ const u_int32_t PAGE_SIZE = sysconf(_SC_PAGE_SIZE);
 const u_int32_t HEADER_SIZE = sizeof(Header);
 const u_int32_t FOOTER_SIZE = sizeof(Footer);
 
+Header* get_header(void* ptr){
+    char *ch_ptr = reinterpret_cast<char *>(ptr);
+    size_t padding = ch_ptr[-1];
+    Header *h = reinterpret_cast<Header *>(static_cast<std::byte*>(ptr) - padding - HEADER_SIZE);
+    return h;
+}
+
+size_t get_size(void* ptr){
+    Header* h = get_header(ptr);
+    return h->size - 1; // Remove allocated bit
+}
+
+Footer *get_footer(void *ptr)
+{
+    return reinterpret_cast<Footer *>(static_cast<std::byte*>(ptr) + get_size(ptr));
+}
+
 // Get offset to next block alignment considering header size and padding byte
 size_t get_padding(const size_t cursor, const size_t alignment){
     size_t padding = (alignment - ((cursor + HEADER_SIZE) % alignment)) % alignment;
@@ -112,4 +129,18 @@ void* Allocator::allocate(size_t size, size_t alignment){
     std::cout << "Allocated at m_cursor " << ptr << "\n";
 
     return ptr;
+}
+
+void Allocator::free(void* ptr){
+    if(f_head){
+        return;
+    }
+    else{ // No free nodes yet
+        // Don't add free node if freeing last mem block
+        size_t s = get_size(ptr);
+        if((reinterpret_cast<std::byte*>(get_header(ptr)) + s) == static_cast<std::byte*>(m_cursor)){
+            m_cursor = reinterpret_cast<std::byte*>(get_header(ptr));
+            std::cout << "New cursor: " << m_cursor << "\n";
+        }
+    }
 }
